@@ -39,6 +39,17 @@ export const createAppSchema = z.object({
   dependencies: z.array(z.enum(choices.dependencies)),
   shadcnComponents: z.array(z.string()),
   nextuiComponents: z.array(z.string()),
+  paths: z.array(
+    z.object({
+      pathname: z.string(),
+      route: z.boolean().optional(),
+      layout: z.boolean().optional(),
+      page: z.boolean().optional(),
+      error: z.boolean().optional(),
+      loading: z.boolean().optional(),
+      template: z.boolean().optional(),
+    })
+  ),
 });
 
 export type CreateAppSchema = z.infer<typeof createAppSchema>;

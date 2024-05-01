@@ -1,4 +1,5 @@
 "use client";
+import JsonViewer from "@/components/JsonViewer";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -11,17 +12,24 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@nextui-org/button";
 import { Input, InputProps } from "@nextui-org/input";
 import {
+  Checkbox,
   Select,
   SelectItem,
   SwitchProps,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
   VisuallyHidden,
   useSwitch,
 } from "@nextui-org/react";
-import { Loader2 } from "lucide-react";
+import { Braces, Loader2 } from "lucide-react";
+import { useState, useTransition } from "react";
 import { UseFormReturn, useForm } from "react-hook-form";
 import { useQueries } from "react-query";
 import { toast } from "sonner";
-import { z } from "zod";
 
 const CreateAppPage = () => {
   const form = useForm<CreateAppSchema>({
@@ -32,9 +40,22 @@ const CreateAppPage = () => {
       dependencies: [],
       shadcnComponents: [],
       nextuiComponents: [],
+      paths: [
+        {
+          pathname: "/",
+          route: false,
+          page: true,
+          layout: false,
+          error: false,
+          loading: false,
+          template: false,
+        },
+      ],
     },
   });
   const { dependencies, shadcnComponents, nextuiComponents } = form.watch();
+  const [showJson, setShowJson] = useState(false);
+  const [isLoading, setTransition] = useTransition();
   const [
     { data: totalShadcnComponents = [], isLoading: loadingShadcnComponents },
     { data: totalNextuiComponents = [], isLoading: loadingNextUIComponents },
@@ -52,97 +73,181 @@ const CreateAppPage = () => {
   ]);
 
   const onSubmit = async (data: CreateAppSchema) => {
-    try {
-      await createApp(data);
-      toast.success("App is created successfully");
-    } catch (e) {
-      toast.error(e.message);
-    }
+    setTransition(async () => {
+      try {
+        await createApp(data);
+        toast.success("App is created successfully");
+      } catch (e) {
+        toast.error(e.message);
+      }
+    });
   };
 
   return (
     <div className="max-w-2xl m-auto my-2 md:my-10 bg-gray-50 dark:bg-black/40 p-2 md:p-5 rounded-lg">
-      <div
-        className="font-semibold text-warning-600 uppercase text-center"
-        onClick={() => console.log(form.watch())}
-      >
-        Create App Page
+      <div className="flex items-center justify-between">
+        <div
+          className="font-semibold text-warning-600 uppercase"
+          onClick={() => console.log(form.watch())}
+        >
+          {isLoading ? "Creating Next App" : "Create Next App"}
+        </div>
+        <div>
+          <Button
+            isIconOnly
+            size="sm"
+            color="warning"
+            onClick={() => setShowJson((p) => !p)}
+          >
+            <Braces />
+          </Button>
+        </div>
       </div>
       <Separator className="my-2 md:my-5" />
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-2 md:space-y-5"
-        >
-          <div className="space-y-2 md:space-y-5 max-h-[60vh] overflow-auto">
-            <MyFormField form={form} label="Title" name="title" isRequired />
-            <MyFormField form={form} label="Description" name="description" />
+      {showJson ? (
+        <JsonViewer data={form.watch()} />
+      ) : (
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-2 md:space-y-5"
+          >
+            <div className="space-y-2 md:space-y-5 max-h-[60vh] overflow-auto">
+              <MyFormField form={form} label="Title" name="title" isRequired />
+              <MyFormField form={form} label="Description" name="description" />
 
-            <div className="flex gap-2 md:gap-3">
-              <div className="flex-1">
-                <MyFormField
-                  form={form}
-                  label="ORM"
-                  name="orm"
-                  options={createAppChoices.orm}
-                />
+              <div className="flex gap-2 md:gap-3">
+                <div className="flex-1">
+                  <MyFormField
+                    form={form}
+                    label="ORM"
+                    name="orm"
+                    options={createAppChoices.orm}
+                  />
+                </div>
+                <div className="flex-1">
+                  <MyFormField
+                    form={form}
+                    label="Database"
+                    name="db"
+                    options={createAppChoices.db}
+                  />
+                </div>
               </div>
-              <div className="flex-1">
-                <MyFormField
+
+              <MultiSelect
+                field="dependencies"
+                form={form}
+                title="Select Dependencies"
+                selectedItems={dependencies}
+                totalItems={createAppChoices.dependencies}
+              />
+
+              {dependencies.includes("shadcn-ui") && (
+                <MultiSelect
+                  field="shadcnComponents"
                   form={form}
-                  label="Database"
-                  name="db"
-                  options={createAppChoices.db}
+                  title="Select Shadcn UI Components"
+                  selectedItems={shadcnComponents}
+                  totalItems={totalShadcnComponents}
+                  isLoading={loadingShadcnComponents}
                 />
-              </div>
+              )}
+
+              {dependencies.includes("nextui") && (
+                <MultiSelect
+                  field="nextuiComponents"
+                  form={form}
+                  title="Select NextUI Components"
+                  selectedItems={nextuiComponents}
+                  totalItems={totalNextuiComponents}
+                  isLoading={loadingNextUIComponents}
+                />
+              )}
             </div>
 
-            <MultiSelect
-              field="dependencies"
-              form={form}
-              title="Select Dependencies"
-              selectedItems={dependencies}
-              totalItems={createAppChoices.dependencies}
-            />
+            <WebsiteStructure form={form} />
 
-            {dependencies.includes("shadcn-ui") && (
-              <MultiSelect
-                field="shadcnComponents"
-                form={form}
-                title="Select Shadcn UI Components"
-                selectedItems={shadcnComponents}
-                totalItems={totalShadcnComponents}
-                isLoading={loadingShadcnComponents}
-              />
-            )}
-
-            {dependencies.includes("nextui") && (
-              <MultiSelect
-                field="nextuiComponents"
-                form={form}
-                title="Select NextUI Components"
-                selectedItems={nextuiComponents}
-                totalItems={totalNextuiComponents}
-                isLoading={loadingNextUIComponents}
-              />
-            )}
-          </div>
-
-          <div className="flex gap-2 justify-end">
-            <Button type="reset" color="warning" variant="bordered">
-              Reset
-            </Button>
-            <Button type="submit" color="warning">
-              Create Project
-            </Button>
-          </div>
-        </form>
-      </Form>
+            <div className="flex gap-2 justify-end">
+              <Button
+                type="reset"
+                color="warning"
+                variant="bordered"
+                isDisabled={isLoading}
+              >
+                Reset
+              </Button>
+              <Button type="submit" color="warning" isLoading={isLoading}>
+                Create Project
+              </Button>
+            </div>
+          </form>
+        </Form>
+      )}
     </div>
   );
 };
 
 export default CreateAppPage;
+
+const WebsiteStructure = ({
+  form,
+}: {
+  form: UseFormReturn<CreateAppSchema>;
+}) => {
+  const { paths } = form.watch();
+
+  const onChange = (path: (typeof paths)[0], key: string, e: any) => {
+    path[key] = e.target.value;
+    if (!paths.find((p) => p === path)) {
+      paths.push(path);
+      if (path.pathname && !path.page && !path.route) {
+        if (path.pathname.includes("api")) path.route = true;
+        else path.page = true;
+      }
+    }
+    form.setValue(
+      "paths",
+      paths.filter((p) => p.pathname)
+    );
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between mb-2 items-center">
+        <Label>Website Structure</Label>
+      </div>
+      <Table>
+        <TableHeader>
+          {Object.keys(paths[0]).map((p) => (
+            <TableColumn key={p} className="capitalize">
+              {p}
+            </TableColumn>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {[...paths, {}].map((path) => (
+            <TableRow key={path.pathname}>
+              {Object.keys(paths[0]).map((key) => (
+                <TableCell key={`${path.pathname}-${key}`}>
+                  {typeof paths[0][key] === "boolean" ? (
+                    <Checkbox isSelected={path[key]} />
+                  ) : (
+                    <Input
+                      placeholder={key}
+                      defaultValue={path[key]}
+                      onBlur={(e) => onChange(path, key, e)}
+                    />
+                  )}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
 
 const MultiSelect = ({
   field,
@@ -238,11 +343,7 @@ const MyFormField = ({
     name={name}
     render={({ field }) =>
       options ? (
-        <Select
-          {...field}
-          {...(props as any)}
-          isDisabled={form.formState.isLoading}
-        >
+        <Select {...field} {...(props as any)}>
           {options
             .map((p) => (typeof p === "string" ? { key: p, label: p } : p))
             .map((option) => (
