@@ -2,7 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "@/lib/utils";
-import { env } from "@/config";
+import { env } from "@/env";
 import { parseRequest } from "./server";
 
 const apiMiddleware =
@@ -11,7 +11,7 @@ const apiMiddleware =
       | ((cacheData: any) => T1 | Promise<T1>)
       | ((
           req: NextRequest,
-          { params, query, body, revalidationKey },
+          { params, query, body, revalidationKey }
         ) => T1 | Promise<T1>),
     {
       revalidate = false,
@@ -24,14 +24,14 @@ const apiMiddleware =
       dynamic?: boolean;
       getCacheArgs?: (
         req: NextRequest,
-        { params, query, body },
+        { params, query, body }
       ) => Promise<T2> | T2;
       getRevalidationKey?:
         | string
         | string[]
         | ((cacheArgs: T2) => string | string[]);
       responseMiddleware?: (data: T1, cacheArgs: T2) => any;
-    } = {},
+    } = {}
   ) =>
   async (req: NextRequest, data: { params; query; body; revalidationKey }) => {
     try {
@@ -50,7 +50,7 @@ const apiMiddleware =
 
       let results;
       data.revalidationKey = serialize(
-        [revalidationKey ?? [(req.method, req.url)]].flat(),
+        [revalidationKey ?? [(req.method, req.url)]].flat()
       );
 
       if (
@@ -59,7 +59,7 @@ const apiMiddleware =
       ) {
         const key = Array.isArray(data.revalidationKey)
           ? data.revalidationKey.map((value) =>
-              typeof value === "string" ? value : JSON.stringify(value),
+              typeof value === "string" ? value : JSON.stringify(value)
             )
           : [JSON.stringify(data.revalidationKey)];
 
@@ -73,7 +73,7 @@ const apiMiddleware =
           {
             revalidate: revalidate === Infinity ? false : revalidate,
             tags: key,
-          },
+          }
         )(cacheArgs);
       } else {
         results = await (cacheArgs
@@ -95,7 +95,7 @@ const apiMiddleware =
       return NextResponse.json(
         results ?? {
           message: "No Response",
-        },
+        }
       );
     } catch (e) {
       // if (dynamic) {

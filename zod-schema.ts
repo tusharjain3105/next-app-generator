@@ -1,4 +1,6 @@
-export const createAppChoices = {
+import { z } from "zod";
+
+const choices = {
   orm: ["prisma", "drizzle"],
   db: ["sqlite", "mongodb", "postgresql", "mysql"],
   dependencies: [
@@ -28,3 +30,15 @@ export const createAppChoices = {
     defaultComponents: ["button"],
   },
 } as const;
+
+export const createAppSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  orm: z.enum(choices.orm).optional(),
+  db: z.enum(choices.db).optional(),
+  dependencies: z.array(z.enum(choices.dependencies)),
+  shadcnComponents: z.array(z.string()),
+  nextuiComponents: z.array(z.string()),
+});
+
+export type CreateAppSchema = z.infer<typeof createAppSchema>;

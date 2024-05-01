@@ -1,6 +1,6 @@
-import "server-only";
-import { NextRequest } from "next/server";
 import { parseQuery, sortNestedObject } from "@/lib/utils";
+import { NextRequest } from "next/server";
+import "server-only";
 
 export const parseBody = async (req: NextRequest) =>
   ["GET", "DELETE", "PUT"].includes(req.method)

@@ -1,4 +1,4 @@
 const HomePage = () => {
-  return <div>Hello World!</div>;
+  return <main className="h-full"></main>;
 };
 export default HomePage;
