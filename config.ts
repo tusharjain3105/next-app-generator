@@ -2,7 +2,7 @@ export const createAppChoices = {
   orm: ["prisma"],
   db: ["sqlite", "mongodb", "postgresql", "mysql"],
   dependencies: [
-    "react-query",
+    "@tanstack/react-query",
     "next-themes",
     "shadcn-ui",
     "nextui",

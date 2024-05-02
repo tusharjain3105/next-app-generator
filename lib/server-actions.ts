@@ -73,13 +73,23 @@ const fileStructure = async (props: CreateAppSchema) => {
   if (props.dependencies.includes("react-query")) {
     await editFile({
       from: "../sample/providers.tsx",
-      to: "components/providers.tsx",
+      to: "components/providers/index.tsx",
     });
   } else {
     await editFile({
       from: `../sample/layout.tsx`,
-      to: "components/providers.tsx",
+      to: "components/providers/index.tsx",
       prefix: '"use client"\n',
+    });
+  }
+
+  if (props.shadcnComponents?.includes("sonner")) {
+    await editFile({
+      to: "components/providers/index.tsx",
+      prefix: 'import { Toaster } from "@/components/ui/sonner";\n',
+      placeholder: {
+        "{children}": "<Toaster/>{children}",
+      },
     });
   }
 
@@ -96,7 +106,7 @@ const fileStructure = async (props: CreateAppSchema) => {
     placeholder: {
       "{children}": "<Providers>{children}</Providers>",
     },
-    prefix: 'import { Providers } from "@/components/providers"\n',
+    prefix: 'import Providers from "@/components/providers"\n',
   });
 
   // Blank Files
@@ -235,7 +245,9 @@ export const createApp = async (props: CreateAppSchema) => {
     });
 
     // Install Dependencies
-    const commands = ["bun add server-only client-only lodash zod"];
+    const commands = [
+      "bun add server-only client-only lodash zod tailwind-animate",
+    ];
 
     // Setup less Dependencies
     const directDeps = dependencies.filter(

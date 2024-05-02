@@ -1,6 +1,6 @@
 import { AuthenticationError } from "@/error";
 import { type ClassValue, clsx } from "clsx";
-import { QueryClient } from "react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {

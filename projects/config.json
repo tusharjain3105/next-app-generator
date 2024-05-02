@@ -1,3 +1,1 @@
-{
-  "projects": {}
-}
+{"projects":{"{\"dependencies\":[\"next-themes\",\"nextui\",\"react-query\",\"shadcn-ui\"],\"description\":\"NextJS Visual Editor\",\"nextuiComponents\":[\"Button\",\"Code\",\"Input\",\"Skeleton\"],\"paths\":[{\"error\":false,\"layout\":false,\"loading\":false,\"page\":true,\"pathname\":\"/\",\"route\":false,\"template\":false},{\"page\":true,\"pathname\":\"/visual-editor\"}],\"shadcnComponents\":[\"Form\",\"Label\",\"Separator\",\"Sonner\"],\"title\":\"NextJS Visual Editor\"}":"672c365b-856d-47f4-9cfe-823418d7a9f4"}}
