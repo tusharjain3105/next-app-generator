@@ -226,8 +226,8 @@ const WebsiteStructure = ({
           ))}
         </TableHeader>
         <TableBody>
-          {[...paths, {}].map((path) => (
-            <TableRow key={path.pathname}>
+          {[...paths, {}].map((path, i) => (
+            <TableRow key={path.pathname + i}>
               {Object.keys(paths[0]).map((key) => (
                 <TableCell key={`${path.pathname}-${key}`}>
                   {typeof paths[0][key] === "boolean" ? (
