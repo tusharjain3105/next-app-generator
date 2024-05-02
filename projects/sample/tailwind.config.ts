@@ -1,6 +1,4 @@
-import { nextui } from "@nextui-org/theme";
 import type { Config } from "tailwindcss";
-import { commonColors, semanticColors } from "@nextui-org/theme";
 
 const config = {
   darkMode: ["class"],
@@ -77,7 +75,7 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), nextui()],
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;
 
 export default config;

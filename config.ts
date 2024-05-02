@@ -1,5 +1,5 @@
 export const createAppChoices = {
-  orm: ["prisma", "drizzle"],
+  orm: ["prisma"],
   db: ["sqlite", "mongodb", "postgresql", "mysql"],
   dependencies: [
     "react-query",

@@ -4,6 +4,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { createAppChoices } from "@/config";
+import { downloadFile } from "@/lib/client";
 import { createApp } from "@/lib/server-actions";
 import { fetch2 } from "@/lib/utils";
 import { ValueOfArray } from "@/types";
@@ -31,7 +32,7 @@ import { UseFormReturn, useForm } from "react-hook-form";
 import { useQueries } from "react-query";
 import { toast } from "sonner";
 
-const CreateAppPage = () => {
+export default function CreateAppPage() {
   const form = useForm<CreateAppSchema>({
     resolver: zodResolver(createAppSchema),
     defaultValues: {
@@ -75,8 +76,9 @@ const CreateAppPage = () => {
   const onSubmit = async (data: CreateAppSchema) => {
     setTransition(async () => {
       try {
-        await createApp(data);
-        toast.success("App is created successfully");
+        const { downloadLink, message } = await createApp(data);
+        downloadFile(downloadLink, data.title);
+        toast.success(message);
       } catch (e) {
         toast.error(e.message);
       }
@@ -186,9 +188,7 @@ const CreateAppPage = () => {
       )}
     </div>
   );
-};
-
-export default CreateAppPage;
+}
 
 const WebsiteStructure = ({
   form,
